@@ -10,6 +10,22 @@ def countLikes(text):
             count += 1
     return count
 
+async def listen_small_pause(recorder):
+    global isListening = True
+    fulltext = ""
+    while isListening:
+        with sr.Microphone() as source:
+            audio = recorder.listen(source)
+        try:
+            text = r1.recognize_google(audio)
+            print(text, end="")
+            fulltext += text
+        except:
+            print("Could not dictate.")
+            sys.exit()
+    return fulltext
+    
+    
 filename = input("Enter your text file name: ")
 
 r1 = sr.Recognizer()
@@ -19,21 +35,11 @@ r1.pause_threshold = .2
 r2.energy_threshold = 2000
 r2.pause_threshold = 3
 
-
-fulltext = ""
 print ("Say something!")
-
-while True:
-    with sr.Microphone() as source:
-        audio = r1.listen(source)
-        r2.listen(audio)
-    try:
-        text = r1.recognize_google(audio)
-        print(text, end="")
-        fulltext += text
-    except:
-        print("Could not dictate.")
-        sys.exit()
+fulltext = listen_small_pause(r1)
+with sr.Microphone as source:
+    audio = r2.listen(source)
+isListening = False
     
 print("Done!")
 file = open("textfiles/" + filename, "a+")
